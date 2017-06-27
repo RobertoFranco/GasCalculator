@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -15,19 +16,21 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    View.OnFocusChangeListener onFocusChangeListener;
-    View.OnClickListener onClickListener;
+    private View.OnFocusChangeListener onFocusChangeListener;
+    private View.OnClickListener onClickListener;
 
-    EditText distanceEditText;
-    EditText carFuelEconomyEditText;
-    EditText fuelPriceEditText;
+    private EditText distanceEditText;
+    private EditText carFuelEconomyEditText;
+    private EditText fuelPriceEditText;
 
-    TextView litersTextView;
-    TextView litersLabelTextView;
-    TextView priceTextView;
-    TextView priceLabelTextView;
+    private  TextView litersTextView;
+    private  TextView litersLabelTextView;
+    private  TextView priceTextView;
+    private  TextView priceLabelTextView;
 
     private float liters;
+
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,19 +54,8 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        setLasData();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        this.saveLastData();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
+        // Set SharePreferences
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
 
         // Find elements
         distanceEditText = (EditText) findViewById(R.id.distanceEditText);
@@ -81,6 +73,19 @@ public class MainActivity extends AppCompatActivity {
         fuelPriceEditText.setOnFocusChangeListener(onFocusChangeListener);
         litersLabelTextView.setOnClickListener(onClickListener);
         priceLabelTextView.setOnClickListener(onClickListener);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.saveLastData();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setLasData();
     }
 
     private void calculateLiters(){
@@ -151,18 +156,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveLastData(){
-
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("lastData", getEditTextsSerialized());
         editor.apply();
     }
 
     private void setLasData(){
-
         // Get the preference value
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        String lastData = sharedPref.getString("lastData", "");
+        String lastData = sharedPreferences.getString("lastData", "");
 
         if (lastData.equals("")){
             return;
@@ -174,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 carFuelEconomyEditText,
                 fuelPriceEditText));
 
-        for(int i = 0 ; i <= editTexts.size(); i++){
+        for(int i = 0 ; i < editTexts.size(); i++){
             editTexts.get(i).setText(lastData.split(";")[i]);
         }
     }
