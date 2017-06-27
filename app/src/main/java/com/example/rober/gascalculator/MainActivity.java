@@ -156,6 +156,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveLastData(){
+
+        // Calculate before
+        calculateLiters();
+        calculatePrice();
+
+        // Save in shared preferences
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("lastData", getEditTextsSerialized());
         editor.apply();
